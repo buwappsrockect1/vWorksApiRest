@@ -1,0 +1,24 @@
+{
+    "sqltools.connections": [
+        {
+            "askForPassword": false,
+            "connectionTimeout": 30,
+            "database": "vivero_w01",
+            "dialect": "MySQL",
+            "name": "localhostVivero_W01",
+            "port": 3306,
+            "server": "127.0.0.1",
+            "username": "root"
+        },
+        {
+            "askForPassword": false,
+            "connectionTimeout": 30,
+            "database": "vivero_w01",
+            "dialect": "MySQL",
+            "name": "localhostVivero_w01",
+            "port": 3306,
+            "server": "127.0.0.1",
+            "username": "root"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "vivero-works-api-server",
+  "version": "1.7.0",
+  "description": "",
+  "main": "vivero-works-api-server01.js",
+  "scripts": {
+    "start": "node vivero-works-api-server01.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.2",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "multer": "^1.4.1",
+    "mysql": "^2.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MY APP</title>
+</head>
+<body>
+   
+ 
+ <!--  SINGLE FILE -->
+<!--<form action="/lotes/imagen-upload" enctype="multipart/form-data" method="POST">--> 
+<form action="http://51.77.140.197:3051/lotes/imagen-upload" enctype="multipart/form-data" method="POST"> 
+     
+   fecha <br>
+   <input type="text" name="fecha" value="21/04/2019" size="15" />
+   comentario <br>
+   <textarea name="comentario" rows="4"></textarea> 
+   IdLote <br>
+   <input type="text" name="IdLote" value="2" />
+   <br>
+   <input type="file" name="imagen" /><br>
+   <br>
+   
+   <input type="submit" value="Upload a file"/>
+</form>
+ 
+ 
+<br>
+<br><br>
+<form action="http://localhost:3051/fileupload"  enctype="multipart/form-data" method="POST">
+  Select images: <input type="file" name="myFile">
+  <input type="submit" value="Upload your files"/>
+</form>
+
+<!-- MULTIPLE FILES -->
+ 
+<form action="/uploadmultiple"  enctype="multipart/form-data" method="POST">
+  Select images: <input type="file" name="myFiles" multiple>
+  <input type="submit" value="Upload your files"/>
+</form>
+ 
+  <!--   PHOTO-->
+ 
+<form action="/upload/photo" enctype="multipart/form-data" method="POST"> 
+  <input type="file" name="myImage" accept="image/*" />
+  <input type="submit" value="Upload Photo"/>
+</form>
+ 
+ 
+ 
+</body>
+</html>
