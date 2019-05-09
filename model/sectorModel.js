@@ -2,6 +2,8 @@
 // connection to the database
 let conn = require('./db');
 let async = require('async');
+let DeleteError = require('./customError');
+
 
 // Sector object constructor
 let Sector = function( sector ) {
@@ -229,17 +231,44 @@ Sector.updateById = function( sectorId, sector, result ) {
 // delete a Sector by ID
 Sector.remove = function( sectorId, result ) {
 
-    conn.query('DELETE FROM sector where id = ?', sectorId, (err, res) => {
+    Sector.getNumLotes(sectorId , (err, resNumLotes) => {
 
         if (err) {
             console.log('error: ', err);
             result(err,null);
         } else {
+
+            // if there are lotes in the sector
+            if ( resNumLotes ) {
+
+                // throws an error - Not possible to delete a sector with lotes inside
+                const err = new DeleteError('Sector con lotes. Error al borrar', 50);
+                console.log('error: ', err);
+                result(err, null);
+
+            } else {
+                
+                // No lotes of the sector
+
+                // deletes the sector
+                conn.query('DELETE FROM sector where id = ?', sectorId, (err, res) => {
+
+                    if (err) {
+                        console.log('error: ', err);
+                        result(err,null);
+                    } else {
+                        result(null, res);
+                    }
             
-            result(null, res);
+                });
+
+            }
+            
         }
 
     });
+
+
 };
 
 

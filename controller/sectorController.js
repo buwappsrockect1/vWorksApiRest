@@ -56,9 +56,11 @@ exports.update_sector = (req, res) => {
 exports.delete_sector = (req, res) => {
     
     Sector.remove( req.params.id_sector , (err, sector) => {
-
-        if (err) res.send(err);
         
+        if (err) {
+            return res.json({ error: true , msg: err.message , code: err.code , errorObj: err });
+        }
+
         res.json({error:false, id: req.params.id_sector, msg: "Sector eliminado correctamente"});
 
     });
