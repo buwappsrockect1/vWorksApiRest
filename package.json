@@ -1,6 +1,6 @@
 {
   "name": "vivero-works-api-server",
-  "version": "1.7.0",
+  "version": "1.10.0",
   "description": "",
   "main": "vivero-works-api-server01.js",
   "scripts": {
