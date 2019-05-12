@@ -8,6 +8,7 @@ let Abono = function( abono ) {
     this.simbolo       = abono.simbolo      ;
     this.composicion   = abono.composicion  ;
     this.otros         = abono.otros        ;
+    this.deleted       = abono.deleted      ;
 };
 
 // createAbono method
@@ -26,10 +27,10 @@ Abono.createAbono = function( newAbono, result ) {
 };
 
 
-// Get all Abonos
+// Get all Abonos 
 Abono.getAllAbonos = function( result ) {
 
-    conn.query('SELECT * FROM abono', (err, res) => {
+    conn.query('SELECT * FROM abono WHERE deleted = 0', (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -46,7 +47,7 @@ Abono.getAllAbonos = function( result ) {
 // display a single Abono by ID
 Abono.getAbonoById = function( AbonoId, result ) {
 
-    conn.query('SELECT * FROM abono WHERE id = ?', AbonoId, (err, res) => {
+    conn.query('SELECT * FROM abono WHERE id = ? AND deleted = 0', AbonoId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -77,10 +78,10 @@ Abono.updateById = function( abonoId, abono, result ) {
 };
 
 
-// delete a Abono by ID
+// delete a Abono by ID ( removes it logically - deleted column )
 Abono.remove = function( AbonoId, result ) {
 
-    conn.query('DELETE FROM abono where id = ?', AbonoId, (err, res) => {
+    conn.query('UPDATE abono SET deleted = 1 WHERE id = ?', AbonoId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
