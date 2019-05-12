@@ -30,7 +30,10 @@ Abono.createAbono = function( newAbono, result ) {
 // Get all Abonos 
 Abono.getAllAbonos = function( result ) {
 
-    conn.query('SELECT * FROM abono WHERE deleted = 0', (err, res) => {
+    conn.query(`SELECT * 
+                FROM abono 
+                WHERE deleted = 0 
+                ORDER BY nombre`, (err, res) => {
 
         if (err) {
             console.log('error: ', err);

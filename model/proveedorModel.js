@@ -12,7 +12,7 @@ let Proveedor = function( proveedor ) {
     this.personaContacto    = proveedor.personaContacto     ;
     this.direccion          = proveedor.direccion           ;
     this.localidad          = proveedor.localidad           ;
-
+    this.deleted            = proveedor.deleted             ;
 };
 
 // createProveedor method
@@ -35,7 +35,7 @@ Proveedor.createProveedor = function( newProveedor, result ) {
 // Get all Proveedores
 Proveedor.getAllProveedores = function( result ) {
 
-    conn.query('SELECT * FROM proveedor', (err, res) => {
+    conn.query('SELECT * FROM proveedor WHERE deleted = 0', (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -52,7 +52,7 @@ Proveedor.getAllProveedores = function( result ) {
 // display a single Proveedor by ID
 Proveedor.getProveedorById = function( proveedorId, result ) {
 
-    conn.query('SELECT * FROM proveedor WHERE id = ?', proveedorId, (err, res) => {
+    conn.query('SELECT * FROM proveedor WHERE id = ? AND deleted = 0', proveedorId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -86,7 +86,7 @@ Proveedor.updateById = function( proveedorId, proveedor, result ) {
 // delete a Proveedor by ID
 Proveedor.remove = function( proveedorId, result ) {
 
-    conn.query('DELETE FROM proveedor where id = ?', proveedorId, (err, res) => {
+    conn.query('UPDATE proveedor SET deleted = 1 WHERE id = ?', proveedorId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);

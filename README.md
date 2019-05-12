@@ -4,6 +4,15 @@
 
 # Arreglos
 
+# Borrar Proveedores ( Arreglo )
+Se arregla borrar Proveedor.
+Se hace un borrado lógico. ( campo en la tabla deleted )
+
+Se mostrarán los proveedores que no estén borrados. ( borrados lógicos )
+
+
+
+
 # Borrar Abonos ( Arreglo )
 Se arregla borrar Abono.
 Se hace un borrado lógico. ( campo en la tabla deleted )
