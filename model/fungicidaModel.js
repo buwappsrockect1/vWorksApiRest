@@ -13,6 +13,7 @@ let Fungicida = function (fungicida) {
     this.plazoSeguridad     = fungicida.plazoSeguridad      ;
     this.contraindicaciones = fungicida.contraindicaciones  ;
     this.princActivo        = fungicida.princActivo         ;
+    this.deleted            = fungicida.deleted             ;
 };
 
 // createFungicida method
@@ -22,7 +23,8 @@ Fungicida.createFungicida = function (newFungicida, result) {
     let newFungicidaData = {        
         nombre:                 newFungicida.nombre,
         plazoSeguridad:         newFungicida.plazoSeguridad,
-        contraindicaciones:     newFungicida.contraindicaciones
+        contraindicaciones:     newFungicida.contraindicaciones,
+        deleted:                newFungicida.deleted
     };
 
 
@@ -87,7 +89,7 @@ Fungicida.createFungicida = function (newFungicida, result) {
 // Get all Fungicidas
 Fungicida.getAllFungicidas = function (result) {
 
-    conn.query('SELECT * FROM fungicida', (err, res) => {
+    conn.query('SELECT * FROM fungicida WHERE deleted = 0', (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -147,7 +149,7 @@ Fungicida.getAllFungicidas = function (result) {
 // display a single Fungicida by ID
 Fungicida.getFungicidaById = function (fungicidaId, result) {
 
-    conn.query('SELECT * FROM fungicida WHERE id = ?', fungicidaId, (err, res) => {
+    conn.query('SELECT * FROM fungicida WHERE id = ? AND deleted = 0', fungicidaId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -255,31 +257,21 @@ Fungicida.updateById = function (fungicidaId, fungicida, result) {
 };
 
 
-// delete a Fungicida by ID
+// delete a Fungicida by ID ( logical delete )
 Fungicida.remove = function (fungicidaId, result) {
 
-    conn.query(`DELETE FROM princ_activ_fungicida WHERE IdFungicida = ?`, fungicidaId, (err, resPrincActiv) => {
+    // nested query to delete fungicida
+    conn.query('UPDATE fungicida SET deleted = 1 where id = ?', fungicidaId, (errDel, res) => {
 
-            if (err) {
-                console.log('error: ', err);
-                result(err, null);
-            } else {
+        if (errDel) {
+            console.log('error: ', errDel);
+            result(errDel, null);
+        } else {
 
-                // nested query to delete fungicida
-                conn.query('DELETE FROM fungicida where id = ?', fungicidaId, (errDel, res) => {
+            result(null, res);
+        }
 
-                    if (errDel) {
-                        console.log('error: ', errDel);
-                        result(errDel, null);
-                    } else {
-            
-                        result(null, res);
-                    }
-            
-                });
-            }
-
-        });
+    });
  
 
 };

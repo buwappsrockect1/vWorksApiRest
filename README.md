@@ -4,6 +4,19 @@
 
 # Arreglos
 
+
+
+
+# Borrar Fungicida ( Arreglo )
+Se arregla borrar Fungicida.
+Se hace un borrado lógico. ( campo en la tabla deleted )
+NO se borran sus principios activos. ( tabla princ_activ_fungicida )
+
+Se mostrarán los fungicidas que no estén borrados. ( borrados lógicos )
+
+
+
+
 # Borrar Proveedores ( Arreglo )
 Se arregla borrar Proveedor.
 Se hace un borrado lógico. ( campo en la tabla deleted )
