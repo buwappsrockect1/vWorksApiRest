@@ -9,10 +9,11 @@ let PrincActivoInsecticida = require('./princActivInsecticida');
 
 // Insecticida object constructor
 let Insecticida = function (insecticida) {
-    this.nombre = insecticida.nombre;
-    this.plazoSeguridad = insecticida.plazoSeguridad;
+    this.nombre             = insecticida.nombre            ;
+    this.plazoSeguridad     = insecticida.plazoSeguridad    ;
     this.contraindicaciones = insecticida.contraindicaciones;
-    this.princActivo = insecticida.princActivo;
+    this.princActivo        = insecticida.princActivo       ;
+    this.deleted            = insecticida.deleted           ;
 };
 
 // createInsecticida method
@@ -20,9 +21,10 @@ Insecticida.createInsecticida = function (newInsecticida, result) {
 
     // insecticida data to insert into insecticida table
     let newInsecticidaData = {
-        nombre: newInsecticida.nombre,
-        plazoSeguridad: newInsecticida.plazoSeguridad,
-        contraindicaciones: newInsecticida.contraindicaciones
+        nombre:             newInsecticida.nombre,
+        plazoSeguridad:     newInsecticida.plazoSeguridad,
+        contraindicaciones: newInsecticida.contraindicaciones,
+        deleted:            newInsecticida.deleted
     };
 
 
@@ -87,7 +89,7 @@ Insecticida.createInsecticida = function (newInsecticida, result) {
 // Get all Insecticidas
 Insecticida.getAllInsecticidas = function (result) {
 
-    conn.query('SELECT * FROM insecticida', (err, res) => {
+    conn.query('SELECT * FROM insecticida WHERE deleted = 0', (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -101,7 +103,7 @@ Insecticida.getAllInsecticidas = function (result) {
 
                 conn.query(`SELECT p.id, p.nombre , p.IdInsecticida FROM insecticida i  
                             INNER JOIN princ_activ_insecticida  p 
-                            ON i.id= p.IdInsecticida`, (err, resPrincActivo) => {
+                            ON i.id= p.IdInsecticida AND p.deleted = 0`, (err, resPrincActivo) => {
 
                         if (err) {
                             console.log('error: ', err);
@@ -147,7 +149,7 @@ Insecticida.getAllInsecticidas = function (result) {
 // display a single Insecticida by ID
 Insecticida.getInsecticidaById = function (insecticidaId, result) {
 
-    conn.query('SELECT * FROM insecticida WHERE id = ?', insecticidaId, (err, res) => {
+    conn.query('SELECT * FROM insecticida WHERE id = ? AND deleted = 0', insecticidaId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -162,7 +164,7 @@ Insecticida.getInsecticidaById = function (insecticidaId, result) {
                 conn.query(`SELECT p.id, p.nombre  FROM insecticida i  
                         INNER JOIN princ_activ_insecticida  p 
                         ON i.id= p.IdInsecticida 
-                        and p.IdInsecticida = ?`, insecticidaId, (err, resPrincActivo) => {
+                        and p.IdInsecticida = ? and p.deleted = 0`, insecticidaId, (err, resPrincActivo) => {
 
                     if (err) {
                         console.log('error: ', err);
@@ -203,35 +205,63 @@ Insecticida.updateById = function (insecticidaId, insecticida, result) {
         } else {
 
 
-            // delete my princ_activ_insecticida
-            conn.query(`DELETE FROM princ_activ_insecticida WHERE IdInsecticida = ?`, insecticidaId, (err, resDelPrincActiv) => {
+                         // delete logically my princ_activ_insecticida
+            conn.query(`UPDATE princ_activ_insecticida 
+                SET deleted = 1  
+                WHERE IdInsecticida = ?`, insecticidaId, (err, resDelPrincActiv) => {
 
                 if (err) {
                     console.log('error: ', err);
                     result(err, null);
                 } else {
                 
-                    // insert the new ones princActiv
+                    // updates with the new ones princActiv
                     let princActivPromises = [];
                     
                     let princActivosInsecticida = JSON.parse(JSON.stringify(insecticida.princActivo));
 
                     
                     princActivosInsecticida.forEach( (princActiv) => {
-                        
-                        princActivPromises.push( 
-                            conn.query('INSERT INTO princ_activ_insecticida SET ?',
-                                        new PrincActivoInsecticida(princActiv.nombre, insecticidaId),
-                                        (err, resInsertPrinActiv) => {
-        
-                                            if (err) {
-                                                console.log('error: ', err);
-                                                result(err, null);
-                                            } 
-        
-                                        })
-                        );
-                       
+
+
+                        // if we update an existing field
+                        if ( princActiv.id ) {
+
+                            princActivPromises.push(
+
+                                conn.query(`UPDATE princ_activ_insecticida   
+                                            SET nombre = ? , deleted = 0   
+                                            WHERE id = ?`,
+                                            [ princActiv.nombre, princActiv.id ],
+                                            (err, resUpdatedPrinActiv) => {
+
+                                                if (err) {
+                                                    console.log('error: ', err);
+                                                    result(err, null);
+                                                } 
+
+                                            })
+                            );    
+
+                        } else {
+
+                            // inserting a new principio activo
+                            princActivPromises.push( 
+                                conn.query('INSERT INTO princ_activ_insecticida SET ?',
+                                            new PrincActivoInsecticida(princActiv.nombre, insecticidaId),
+                                            (err, resInsertPrinActiv) => {
+
+                                                if (err) {
+                                                    console.log('error: ', err);
+                                                    result(err, null);
+                                                } 
+
+                                            })
+                            );
+
+                        }
+
+                
                     });
                     
                     
@@ -247,7 +277,7 @@ Insecticida.updateById = function (insecticidaId, insecticida, result) {
                     
                 }
 
-            }); 
+            });
 
         }
 
@@ -258,28 +288,18 @@ Insecticida.updateById = function (insecticidaId, insecticida, result) {
 // delete a Insecticida by ID
 Insecticida.remove = function (insecticidaId, result) {
 
-    conn.query(`DELETE FROM princ_activ_insecticida WHERE IdInsecticida = ?`, insecticidaId, (err, resPrincActiv) => {
+    // nested query to delete insecticida
+    conn.query('UPDATE insecticida SET deleted = 1 WHERE id = ?', insecticidaId, (errDel, res) => {
 
-            if (err) {
-                console.log('error: ', err);
-                result(err, null);
-            } else {
+        if (errDel) {
+            console.log('error: ', errDel);
+            result(errDel, null);
+        } else {
 
-                // nested query to delete insecticida
-                conn.query('DELETE FROM insecticida where id = ?', insecticidaId, (errDel, res) => {
+            result(null, res);
+        }
 
-                    if (errDel) {
-                        console.log('error: ', errDel);
-                        result(errDel, null);
-                    } else {
-            
-                        result(null, res);
-                    }
-            
-                });
-            }
-
-        });
+    });
  
 
 };

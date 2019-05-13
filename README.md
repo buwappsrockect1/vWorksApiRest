@@ -5,6 +5,23 @@
 # Arreglos
 
 
+# Borrado logico de princ_activ_insecticida ( principios activos del insecticida - borrado logico )
+Se agrega campo deleted para el principio activo del insecticida.
+Se mostrarán los insecticidas que no estén borrados ( borrado lógico )
+
+
+
+
+# Borrar Insecticida ( Arreglo )
+Se arregla borrar Insecticida.
+Se hace un borrado lógico. ( campo en la tabla deleted )
+NO se borran sus principios activos. ( tabla princ_activ_fungicida )
+
+Se agrega el campo deleted en tabla princ_activ_insecticida también.
+
+Se mostrarán los insecticidas que no estén borrados. ( borrados lógicos )
+
+
 
 # Borrado logico de princ_activ_fungicida ( principios activos del fungicida - borrado logico )
 Se agrega campo deleted para el principio activo del fungicida.
