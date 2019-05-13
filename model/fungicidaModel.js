@@ -103,7 +103,7 @@ Fungicida.getAllFungicidas = function (result) {
 
                 conn.query(`SELECT p.id, p.nombre , p.IdFungicida FROM fungicida f  
                             INNER JOIN princ_activ_fungicida  p 
-                            ON f.id= p.IdFungicida`, (err, resPrincActivo) => {
+                            ON f.id= p.IdFungicida AND p.deleted = 0`, (err, resPrincActivo) => {
 
                         if (err) {
                             console.log('error: ', err);
@@ -161,10 +161,11 @@ Fungicida.getFungicidaById = function (fungicidaId, result) {
 
                 res = JSON.parse(JSON.stringify(res));
 
-                conn.query(`SELECT p.id, p.nombre  FROM fungicida f  
+                conn.query(`SELECT p.id, p.nombre  
+                        FROM fungicida f  
                         INNER JOIN princ_activ_fungicida  p 
                         ON f.id= p.IdFungicida 
-                        and p.IdFungicida = ?`, fungicidaId, (err, resPrincActivo) => {
+                        and p.IdFungicida = ? and p.deleted = 0`, fungicidaId, (err, resPrincActivo) => {
 
                     if (err) {
                         console.log('error: ', err);
@@ -204,36 +205,64 @@ Fungicida.updateById = function (fungicidaId, fungicida, result) {
             result(err, null);
         } else {
 
-
-            // delete my princ_activ_fungicida
-            conn.query(`DELETE FROM princ_activ_fungicida WHERE IdFungicida = ?`, fungicidaId, (err, resDelPrincActiv) => {
+            
+            // delete logically my princ_activ_fungicida
+            conn.query(`UPDATE princ_activ_fungicida 
+                        SET deleted = 1 
+                        WHERE IdFungicida = ?`, fungicidaId, (err, resDelPrincActiv) => {
 
                 if (err) {
                     console.log('error: ', err);
                     result(err, null);
                 } else {
                 
-                    // insert the new ones princActiv
+                    // updates with the new ones princActiv
                     let princActivPromises = [];
                     
                     let princActivosFungicida = JSON.parse(JSON.stringify(fungicida.princActivo));
 
                     
                     princActivosFungicida.forEach( (princActiv) => {
-                        
-                        princActivPromises.push( 
-                            conn.query('INSERT INTO princ_activ_fungicida SET ?',
-                                        new PrincActivoFungicida(princActiv.nombre, fungicidaId),
-                                        (err, resInsertPrinActiv) => {
-        
-                                            if (err) {
-                                                console.log('error: ', err);
-                                                result(err, null);
-                                            } 
-        
-                                        })
-                        );
-                       
+    
+
+                        // if we update an existing field
+                        if ( princActiv.id ) {
+
+                            princActivPromises.push(
+
+                                conn.query(`UPDATE princ_activ_fungicida  
+                                            SET nombre = ? , deleted = 0   
+                                            WHERE id = ?`,
+                                            [ princActiv.nombre, princActiv.id ],
+                                            (err, resUpdatedPrinActiv) => {
+
+                                                if (err) {
+                                                    console.log('error: ', err);
+                                                    result(err, null);
+                                                } 
+
+                                            })
+                            );    
+
+                        } else {
+
+                            // inserting a new principio activo
+                            princActivPromises.push( 
+                                conn.query('INSERT INTO princ_activ_fungicida SET ?',
+                                            new PrincActivoFungicida(princActiv.nombre, fungicidaId),
+                                            (err, resInsertPrinActiv) => {
+            
+                                                if (err) {
+                                                    console.log('error: ', err);
+                                                    result(err, null);
+                                                } 
+            
+                                            })
+                            );
+
+                        }
+ 
+                 
                     });
                     
                     
@@ -261,7 +290,7 @@ Fungicida.updateById = function (fungicidaId, fungicida, result) {
 Fungicida.remove = function (fungicidaId, result) {
 
     // nested query to delete fungicida
-    conn.query('UPDATE fungicida SET deleted = 1 where id = ?', fungicidaId, (errDel, res) => {
+    conn.query('UPDATE fungicida SET deleted = 1 WHERE id = ?', fungicidaId, (errDel, res) => {
 
         if (errDel) {
             console.log('error: ', errDel);

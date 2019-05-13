@@ -12,6 +12,8 @@ Se arregla borrar Fungicida.
 Se hace un borrado lógico. ( campo en la tabla deleted )
 NO se borran sus principios activos. ( tabla princ_activ_fungicida )
 
+Se agrega el campo deleted en tabla princ_activ_fungicida también.
+
 Se mostrarán los fungicidas que no estén borrados. ( borrados lógicos )
 
 
