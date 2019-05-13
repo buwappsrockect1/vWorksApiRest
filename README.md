@@ -6,6 +6,10 @@
 
 
 
+# Borrado logico de princ_activ_fungicida ( principios activos del fungicida - borrado logico )
+Se agrega campo deleted para el principio activo del fungicida.
+Se mostrarán los fungicidas que no estén borrados ( borrado lógico )
+
 
 # Borrar Fungicida ( Arreglo )
 Se arregla borrar Fungicida.
