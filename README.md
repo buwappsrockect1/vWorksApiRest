@@ -5,6 +5,14 @@
 # Arreglos
 
 
+# Arreglo Borrar Lote ( Borrado Logico )
+Se agrega campo deleted para el lote.
+Se mostrarán los lotes que no estén borrados ( borrado lógico )
+
+El lote puede estar borrado ( lógico ) pero debe de existir para los albaranes o historial.
+
+
+
 # Borrado logico de princ_activ_insecticida ( principios activos del insecticida - borrado logico )
 Se agrega campo deleted para el principio activo del insecticida.
 Se mostrarán los insecticidas que no estén borrados ( borrado lógico )

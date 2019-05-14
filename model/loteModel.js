@@ -15,7 +15,8 @@ let Lote = function( lote ) {
     this.IdProveedorOrigen          = lote.IdProveedorOrigen    ;
     this.codProveedor               = lote.codProveedor         ;
     this.qrTrazabilidad             = lote.qrTrazabilidad       ;
-    this.notas                      = lote.notas                ;          
+    this.notas                      = lote.notas                ; 
+    this.deleted                    = lote.deleted              ;         
 };
 
 
@@ -119,7 +120,7 @@ Lote.createLote = function( newLote, result ) {
 // Get all Lotes
 Lote.getAllLotes = function( result ) {
 
-    conn.query('SELECT * FROM lote', (err, res) => {
+    conn.query('SELECT * FROM lote WHERE deleted = 0', (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -135,7 +136,7 @@ Lote.getAllLotes = function( result ) {
 // Get all Lotes in a Sector
 Lote.getAllLotesInSector = function( sectorId, result ) {
 
-    conn.query('SELECT * FROM lote WHERE IdSector = ?', sectorId, (err, res) => {
+    conn.query('SELECT * FROM lote WHERE IdSector = ? AND deleted = 0', sectorId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -151,7 +152,7 @@ Lote.getAllLotesInSector = function( sectorId, result ) {
 // display a single Lote by ID
 Lote.getLoteById = function( loteId, result ) {
 
-    conn.query('SELECT * FROM lote WHERE id = ?', loteId, (err, res) => {
+    conn.query('SELECT * FROM lote WHERE id = ? AND deleted = 0', loteId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -185,7 +186,7 @@ Lote.updateById = function( loteId, lote, result ) {
 // delete a Lote by ID
 Lote.remove = function( loteId, result ) {
 
-    conn.query('DELETE FROM lote where id = ?', loteId, (err, res) => {
+    conn.query('UPDATE lote SET deleted = 1 where id = ?', loteId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
