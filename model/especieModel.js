@@ -17,7 +17,7 @@ let Especie = function (especie) {
     this.origen             = especie.origen              ;
     this.caracteristicas    = especie.caracteristicas     ;
     this.imagen             = especie.imagen              ;
-    
+    this.deleted            = especie.deleted             ;
 };
 
 // createEspecie method
@@ -31,7 +31,8 @@ Especie.createEspecie = function (newEspecie, result) {
         nombreComun:            newEspecie.nombreComun,
         origen:                 newEspecie.origen,
         caracteristicas:        newEspecie.caracteristicas,
-        imagen:                 newEspecie.imagen
+        imagen:                 newEspecie.imagen,
+        deleted:                newEspecie.deleted
     };
 
 
@@ -96,7 +97,7 @@ Especie.createEspecie = function (newEspecie, result) {
 // Get all Especies
 Especie.getAllEspecies = function (result) {
 
-    conn.query('SELECT * FROM especie', (err, res) => {
+    conn.query('SELECT * FROM especie WHERE deleted = 0', (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -111,7 +112,7 @@ Especie.getAllEspecies = function (result) {
                 conn.query(`SELECT v.id, v.nombre , v.IdEspecie  
                             FROM especie e  
                             INNER JOIN variedades  v  
-                            ON e.id= v.IdEspecie`, (err, resVariedades) => {
+                            ON e.id= v.IdEspecie AND v.deleted = 0`, (err, resVariedades) => {
 
                         if (err) {
                             console.log('error: ', err);
@@ -157,7 +158,7 @@ Especie.getAllEspecies = function (result) {
 // display a single Especie by ID
 Especie.getEspecieById = function (especieId, result) {
 
-    conn.query('SELECT * FROM especie WHERE id = ?', especieId, (err, res) => {
+    conn.query('SELECT * FROM especie WHERE id = ? AND deleted = 0', especieId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -173,7 +174,7 @@ Especie.getEspecieById = function (especieId, result) {
                             FROM especie e  
                             INNER JOIN variedades  v  
                             ON e.id= v.IdEspecie  
-                            and v.IdEspecie = ?`, especieId, (err, resVariedad) => {
+                            and v.IdEspecie = ? and v.deleted = 0`, especieId, (err, resVariedad) => {
 
                     if (err) {
                         console.log('error: ', err);
@@ -218,43 +219,68 @@ Especie.updateById = function (especieId, especie, result) {
         } else {
 
 
-            result(null, res);
-
-/*
-            // delete my princ_activ_fungicida
-            conn.query(`DELETE FROM princ_activ_fungicida WHERE IdFungicida = ?`, fungicidaId, (err, resDelPrincActiv) => {
+            // delete logically all variedades
+            conn.query(`UPDATE variedades  
+                        SET deleted = 1 
+                        WHERE IdEspecie = ?`, especieId, (err, resDelVariedad) => {
 
                 if (err) {
                     console.log('error: ', err);
                     result(err, null);
                 } else {
                 
-                    // insert the new ones princActiv
-                    let princActivPromises = [];
+                    // updates with the new ones variedades
+                    let variedadPromises = [];
                     
-                    let princActivosFungicida = JSON.parse(JSON.stringify(fungicida.princActivo));
+                    let variedadEspecie = JSON.parse(JSON.stringify(especie.variedad));
 
                     
-                    princActivosFungicida.forEach( (princActiv) => {
-                        
-                        princActivPromises.push( 
-                            conn.query('INSERT INTO princ_activ_fungicida SET ?',
-                                        new PrincActivoFungicida(princActiv.nombre, fungicidaId),
-                                        (err, resInsertPrinActiv) => {
-        
-                                            if (err) {
-                                                console.log('error: ', err);
-                                                result(err, null);
-                                            } 
-        
-                                        })
-                        );
-                       
+                    variedadEspecie.forEach( (variedadElem) => {
+    
+
+                        // if we update an existing field
+                        if ( variedadElem.id ) {
+
+                            variedadPromises.push(
+
+                                conn.query(`UPDATE variedades   
+                                            SET nombre = ? , deleted = 0   
+                                            WHERE id = ?`,
+                                            [ variedadElem.nombre, variedadElem.id ],
+                                            (err, resUpdatedVariedad) => {
+
+                                                if (err) {
+                                                    console.log('error: ', err);
+                                                    result(err, null);
+                                                } 
+
+                                            })
+                            );    
+
+                        } else {
+
+                            // inserting a new variedad
+                            variedadPromises.push( 
+                                conn.query('INSERT INTO variedades SET ?',
+                                            new Variedad(variedadElem.nombre, especieId),
+                                            (err, resInsertedVariedad) => {
+            
+                                                if (err) {
+                                                    console.log('error: ', err);
+                                                    result(err, null);
+                                                } 
+            
+                                            })
+                            );
+
+                        }
+ 
+                 
                     });
                     
                     
                     Promise.all(
-                        princActivPromises
+                        variedadPromises
                     ).then( (values) => {
                         result(null, res);
                     })
@@ -266,7 +292,8 @@ Especie.updateById = function (especieId, especie, result) {
                 }
 
             }); 
-*/
+
+
         }
 
     });
@@ -276,28 +303,19 @@ Especie.updateById = function (especieId, especie, result) {
 // delete a Especie by ID
 Especie.remove = function (especieId, result) {
 
-    conn.query(`DELETE FROM variedades WHERE IdEspecie = ?`, especieId, (err, resVariedades) => {
+    // query to delete 
+    conn.query('UPDATE especie SET deleted = 1 WHERE id = ?', especieId, (errDel, res) => {
 
-            if (err) {
-                console.log('error: ', err);
-                result(err, null);
-            } else {
+        if (errDel) {
+            console.log('error: ', errDel);
+            result(errDel, null);
+        } else {
 
-                // nested query to delete Especie
-                conn.query('DELETE FROM especie where id = ?', especieId, (errDel, res) => {
+            result(null, res);
+        }
 
-                    if (errDel) {
-                        console.log('error: ', errDel);
-                        result(errDel, null);
-                    } else {
-            
-                        result(null, res);
-                    }
-            
-                });
-            }
+    });
 
-        });
  
 
 };
