@@ -136,7 +136,7 @@ Lote.getAllLotes = function( result ) {
 // Get all Lotes in a Sector
 Lote.getAllLotesInSector = function( sectorId, result ) {
 
-    conn.query('SELECT * FROM lote WHERE IdSector = ? AND deleted = 0', sectorId, (err, res) => {
+    conn.query('SELECT * FROM lote WHERE IdSector = ? AND deleted = 0 ORDER BY id', sectorId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -186,7 +186,7 @@ Lote.updateById = function( loteId, lote, result ) {
 // delete a Lote by ID
 Lote.remove = function( loteId, result ) {
 
-    conn.query('UPDATE lote SET deleted = 1 where id = ?', loteId, (err, res) => {
+    conn.query('UPDATE lote SET deleted = 1 WHERE id = ?', loteId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);

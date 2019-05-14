@@ -14,6 +14,7 @@ exports.create_variedad = (req, res) => {
     
     let new_variedad = new Variedades( req.body );
 
+
     // handle null error
     if ( !new_variedad.nombre ) {
 

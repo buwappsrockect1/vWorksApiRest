@@ -15,7 +15,8 @@ let LoteInfo = function( lote ) {
     this.IdProveedorOrigen          = lote.IdProveedorOrigen    ;
     this.codProveedor               = lote.codProveedor         ;
     this.qrTrazabilidad             = lote.qrTrazabilidad       ;
-    this.notas                      = lote.notas                ;          
+    this.notas                      = lote.notas                ;  
+    this.deleted                    = lote.deleted              ;        
 };
 
 
@@ -31,7 +32,7 @@ LoteInfo.getAllLotesInfo = function( result ) {
                     l.cantidad , l.stockMinimo , l.fechaEntrada ,
                     o.id as operarioId , o.codigo as operarioCodigo, o.nombreOperaciones as operarioNombreOperaciones ,
                     p.id as proveedorId , p.nombre as proveedorNombre , p.nombre2Digitos as proveedorNombre2Digitos ,  
-                    l.codProveedor , l.qrTrazabilidad , l.notas  
+                    l.codProveedor , l.qrTrazabilidad , l.notas , l.deleted  
                     
                     FROM lote l
                     INNER JOIN especie e 
@@ -43,7 +44,8 @@ LoteInfo.getAllLotesInfo = function( result ) {
                     INNER JOIN operario o 
                     ON l.IdOperarioEncargado = o.id 
                     INNER JOIN proveedor p 
-                    ON l.IdProveedorOrigen = p.id`, 
+                    ON l.IdProveedorOrigen = p.id 
+                    WHERE l.deleted = 0`, 
                 (err, res) => {
 
         if (err) {
@@ -87,7 +89,8 @@ LoteInfo.getAllLotesInfo = function( result ) {
                     },
                     codProveedor:       loteI.codProveedor              ,
                     qrTrazabilidad:     loteI.qrTrazabilidad            ,
-                    notas:              loteI.notas 
+                    notas:              loteI.notas                     ,
+                    deleted:            loteI.deleted
 
                 };
 
@@ -108,7 +111,7 @@ LoteInfo.getAllLotesInfoInSector = function( sectorId, result ) {
                     l.cantidad , l.stockMinimo , l.fechaEntrada ,
                     o.id as operarioId , o.codigo as operarioCodigo, o.nombreOperaciones as operarioNombreOperaciones ,
                     p.id as proveedorId , p.nombre as proveedorNombre , p.nombre2Digitos as proveedorNombre2Digitos ,  
-                    l.codProveedor , l.qrTrazabilidad , l.notas  
+                    l.codProveedor , l.qrTrazabilidad , l.notas , l.deleted  
                     
                     FROM lote l
                     INNER JOIN especie e 
@@ -121,7 +124,8 @@ LoteInfo.getAllLotesInfoInSector = function( sectorId, result ) {
                     ON l.IdOperarioEncargado = o.id 
                     INNER JOIN proveedor p 
                     ON l.IdProveedorOrigen = p.id 
-                    WHERE l.IdSector = ?`, 
+                    WHERE l.IdSector = ? AND l.deleted = 0 
+                    ORDER BY l.id`, 
                 sectorId, (err, res) => {
 
         if (err) {
@@ -165,7 +169,8 @@ LoteInfo.getAllLotesInfoInSector = function( sectorId, result ) {
                     },
                     codProveedor:       loteI.codProveedor              ,
                     qrTrazabilidad:     loteI.qrTrazabilidad            ,
-                    notas:              loteI.notas 
+                    notas:              loteI.notas                     ,
+                    deleted:            loteI.deleted
 
                 };
 
@@ -186,7 +191,7 @@ LoteInfo.getLoteInfoById = function( loteId, result ) {
                     l.cantidad , l.stockMinimo , l.fechaEntrada ,
                     o.id as operarioId , o.codigo as operarioCodigo, o.nombreOperaciones as operarioNombreOperaciones ,
                     p.id as proveedorId , p.nombre as proveedorNombre , p.nombre2Digitos as proveedorNombre2Digitos ,  
-                    l.codProveedor , l.qrTrazabilidad , l.notas  
+                    l.codProveedor , l.qrTrazabilidad , l.notas , l.deleted  
                     
                     FROM lote l
                     INNER JOIN especie e 
@@ -199,7 +204,7 @@ LoteInfo.getLoteInfoById = function( loteId, result ) {
                     ON l.IdOperarioEncargado = o.id 
                     INNER JOIN proveedor p 
                     ON l.IdProveedorOrigen = p.id 
-                    WHERE l.id = ?`, 
+                    WHERE l.id = ? AND l.deleted = 0`, 
                 loteId, (err, res) => {
 
         if (err) {
@@ -243,7 +248,8 @@ LoteInfo.getLoteInfoById = function( loteId, result ) {
                     },
                     codProveedor:       loteI.codProveedor              ,
                     qrTrazabilidad:     loteI.qrTrazabilidad            ,
-                    notas:              loteI.notas 
+                    notas:              loteI.notas                     ,
+                    deleted:            loteI.deleted
 
                 };
 

@@ -1,18 +1,22 @@
 
 // connection to the database
-let conn = require('./db');
+let conn            = require('./db');
+
 
 // Variedades object constructor
 let Variedades = function( variedad ) {
-    this.nombre        = variedad.nombre       ;  
+    this.nombre        = variedad.nombre       ; 
 };
 
 // createVariedad method
 Variedades.createVariedad = function( newVariedad, especieId, result ) {
 
-    newVariedad.IdEspecie = especieId ;
+    const myVariedadData = {
+        nombre          :   newVariedad.nombre ,
+        IdEspecie       :   especieId 
+    };
 
-    conn.query('INSERT INTO variedades SET ?', newVariedad , (err, res) => {
+    conn.query('INSERT INTO variedades SET ?', myVariedadData, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -29,7 +33,7 @@ Variedades.createVariedad = function( newVariedad, especieId, result ) {
 // Get all Variedades
 Variedades.getAllVariedades = function( especieId, result ) {
 
-    conn.query('SELECT id, nombre FROM variedades WHERE IdEspecie = ?', especieId, (err, res) => {
+    conn.query('SELECT id, nombre FROM variedades WHERE IdEspecie = ? AND deleted =0', especieId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
@@ -64,7 +68,7 @@ Variedades.updateById = function( variedadesId, variedad, result ) {
 // delete a Variedad by ID
 Variedades.remove = function( variedadesId, result ) {
 
-    conn.query('DELETE FROM variedades where id = ?', variedadesId, (err, res) => {
+    conn.query('UPDATE variedades SET deleted = 1 WHERE id = ?', variedadesId, (err, res) => {
 
         if (err) {
             console.log('error: ', err);
